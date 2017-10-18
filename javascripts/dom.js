@@ -1,6 +1,6 @@
 "use strict";
 
-const domString = (movieArray) => {
+const domString = (movieArray, imgConfig) => {
 	let domString = "";
 	for (let i = 0; i < movieArray.length; i++) {
 		if (i % 3 === 0) {
@@ -8,7 +8,7 @@ const domString = (movieArray) => {
 	}
 	domString += `<div class="col-sm-6 col-md-4">`;
 	domString += 	`<div class="thumbnail">`;
-	domString += 		`<img src="" alt="">`;
+	domString += 		`<img src="${imgConfig.base_url}/w342/${movieArray[i].poster_path}" alt="">`;
 	domString += 		`<div class="caption">`;
 	domString += 		`<h3>${movieArray[i].original_title}</h3>`;
 	domString += 		`<p>${movieArray[i].overview}</p>`; 
