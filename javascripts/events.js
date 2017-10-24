@@ -25,6 +25,7 @@ const myLinks = () => {
 			$("#myMovies").removeClass("hide");
 			$("#authScreen").addClass("hide");
 			firebaseApi.getMovieList().then((results) => {
+				console.log("results", results);
 				dom.clearDom('moviesMine');
 				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
 			}).catch((err) => {

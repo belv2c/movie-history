@@ -25,6 +25,7 @@ let authenticateGoogle = () => {
   	let movies = [];
   	return new Promise((resolve, reject) =>{
   		$.ajax(`${firebaseKey.databaseURL}/movies.json?orderBy="uid"&equalTo="${userUid}"`).then((fbMovies) => {
+        console.log("FB", fbMovies);
   			if(fbMovies != null){
   			Object.keys(fbMovies).forEach((key) => {
   				fbMovies[key].id = key;
