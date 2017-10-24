@@ -1,6 +1,7 @@
 "use strict";
 
 const tmdb = require('./tmdb');
+const dom = require('./dom');
 const firebaseApi = require('./firebaseApi');
 
 const pressEnter = () => {
@@ -23,6 +24,12 @@ const myLinks = () => {
 			$("#search").addClass("hide");
 			$("#myMovies").removeClass("hide");
 			$("#authScreen").addClass("hide");
+			firebaseApi.getMovieList().then((results) => {
+				dom.clearDom('moviesMine');
+				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
+			}).catch((err) => {
+				console.log("error in getMovieList", err);
+			});
 		}else if (e.target.id === "authenticate"){
 			$("#search").addClass("hide");
 			$("#myMovies").addClass("hide");
@@ -33,11 +40,9 @@ const myLinks = () => {
 
 
 const googleAuth = () => {
-	$("#googleButton").click((e) => {
-		firebaseApi.authenticateGoogle().then((result) =>{
-			console.log("result", result);
-		}).catch((error) => {
-			console.log("error from authenticateGoogle", error);
+	$('#googleButton').click((e) =>{
+		firebaseApi.authenticateGoogle().then().catch((err) =>{
+			console.log("error in authenticateGoogle", err);
 		});
 	});
 };
