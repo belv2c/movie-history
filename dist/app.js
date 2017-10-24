@@ -88,6 +88,7 @@ const myLinks = () => {
 			$("#myMovies").removeClass("hide");
 			$("#authScreen").addClass("hide");
 			firebaseApi.getMovieList().then((results) => {
+				console.log("results", results);
 				dom.clearDom('moviesMine');
 				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
 			}).catch((err) => {
@@ -146,6 +147,7 @@ let authenticateGoogle = () => {
   	let movies = [];
   	return new Promise((resolve, reject) =>{
   		$.ajax(`${firebaseKey.databaseURL}/movies.json?orderBy="uid"&equalTo="${userUid}"`).then((fbMovies) => {
+        console.log("FB", fbMovies);
   			if(fbMovies != null){
   			Object.keys(fbMovies).forEach((key) => {
   				fbMovies[key].id = key;
