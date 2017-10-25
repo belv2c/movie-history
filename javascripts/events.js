@@ -55,8 +55,6 @@ const wishListEvents = () => {
 		console.log("wishlist event", e);
 		let mommy = e.target.closest('.movie');
 		
-		
-
 		let newMovie = {
 			"title": $(mommy).find('.title').html(),
 			"overview": $(mommy).find('.overview').html(),
