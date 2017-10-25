@@ -27,7 +27,7 @@ const myLinks = () => {
 			firebaseApi.getMovieList().then((results) => {
 				console.log("results", results);
 				dom.clearDom('moviesMine');
-				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
+				dom.domString(results, tmdb.getImgConfig(), 'moviesMine', false);
 			}).catch((err) => {
 				console.log("error in getMovieList", err);
 			});
