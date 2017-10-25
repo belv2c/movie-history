@@ -28,7 +28,7 @@ module.exports = {retrieveKeys};
 },{"./firebaseApi":4,"./tmdb":6}],2:[function(require,module,exports){
 "use strict";
 
-const domString = (movieArray, imgConfig, divName) => {
+const domString = (movieArray, imgConfig, divName, search) => {
 	let domString = "";
 	for (let i = 0; i < movieArray.length; i++) {
 		if (i % 3 === 0) {
@@ -36,14 +36,23 @@ const domString = (movieArray, imgConfig, divName) => {
 	}
 	domString += `<div class="col-sm-6 col-md-4 movie">`;
 	domString += 	`<div class="thumbnail">`;
+
+	if (!search){
+	domString +=		`<button class="btn btn-default delete" data-firebase-id="${movieArray[i].id}">X</button>`;
+	}
+
 	domString += 		`<img class="poster_path" src="${imgConfig.base_url}/w342/${movieArray[i].poster_path}" alt="">`;
 	domString += 		`<div class="caption">`;
 	domString += 		`<h3 class="title">${movieArray[i].title}</h3>`;
 	domString += 		`<p class="overview">${movieArray[i].overview}</p>`; 
+	if(search) {
 	domString += 		`<p>`;
 	domString +=			`<a class="btn btn-primary review" role="button">Review</a>`; 
 	domString +=			`<a class="btn btn-default wishlist" role="button">Wishlist</a>`;
 	domString +=		`</p>`;
+	} else {
+	domString += `<p>Rating: ${movieArray[i].rating}</p>`;
+	}
 	domString += 	 `</div>`; 
 	domString +=   `</div>`;
 	domString += `</div>`; 
@@ -80,6 +89,19 @@ const pressEnter = () => {
 	});
 };
 
+
+const getMahMovies = () => {
+	firebaseApi.getMovieList().then((results) => {
+		dom.clearDom('moviesMine');
+		dom.domString(results, tmdb.getImgConfig(), 'moviesMine', false);
+	}).catch((err) => {
+		console.log("error in getMovieList", err);
+	});
+};
+
+
+
+
 const myLinks = () => {
 	$(document).click((e) =>{
 		if(e.target.id === "navSearch"){
@@ -90,13 +112,7 @@ const myLinks = () => {
 			$("#search").addClass("hide");
 			$("#myMovies").removeClass("hide");
 			$("#authScreen").addClass("hide");
-			firebaseApi.getMovieList().then((results) => {
-				console.log("results", results);
-				dom.clearDom('moviesMine');
-				dom.domString(results, tmdb.getImgConfig(), 'moviesMine');
-			}).catch((err) => {
-				console.log("error in getMovieList", err);
-			});
+			getMahMovies();
 		}else if (e.target.id === "authenticate"){
 			$("#search").addClass("hide");
 			$("#myMovies").addClass("hide");
@@ -165,16 +181,27 @@ const reviewEvents = () => {
 };
 
 
+const deleteMovie = () => {
+	$('body').on('click', '.delete', (e) => {
+		let movieId = $(e.target).data('firebase-id'); // looks for data-firebase-id(or whatever's in the parenthesis)
+
+		firebaseApi.deleteMovie(movieId).then((results) => {
+			getMahMovies();
+		}).catch((err) => {
+			console.log("error in deleteMovie", err);
+		});
+	});
+};
+
+
 const init = () => {
 	myLinks();
 	googleAuth(); 
 	pressEnter();
 	wishListEvents();
 	reviewEvents();
+	deleteMovie();
 };
-
-
-
 
 module.exports = {init};
 
@@ -245,10 +272,23 @@ const saveMovie = (movie) => {
 };
 
 
+const deleteMovie = (movieId) => {
+  return new Promise((resolve, reject) => {
+      $.ajax({
+      method: "DELETE",
+      url: `${firebaseKey.databaseURL}/movies/${movieId}.json`
+    }).then((fbMovie) => {
+      resolve(fbMovie);
+    }).catch((err) => {
+      reject(err);
+    });
+  });
+};
 
 
 
-module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie};
+
+module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie, deleteMovie};
 },{}],5:[function(require,module,exports){
 "use strict";
 
@@ -308,7 +348,7 @@ const setKey = (apiKey) => {
 
 const showResults = (movieArray) => {
 	dom.clearDom('movies');
-	dom.domString(movieArray, imgConfig, 'movies');
+	dom.domString(movieArray, imgConfig, 'movies', true);
 };
 
 const getImgConfig = () => {
