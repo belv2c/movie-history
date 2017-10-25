@@ -122,7 +122,7 @@ const wishListEvents = () => {
 		let mommy = e.target.closest('.movie');
 		
 		
-	
+
 		let newMovie = {
 			"title": $(mommy).find('.title').html(),
 			"overview": $(mommy).find('.overview').html(),
@@ -131,8 +131,13 @@ const wishListEvents = () => {
 			"isWatched": false,
 			"uid": ""
 		};
-		console.log("newMovie", newMovie);
-		/*firebaseApi.saveMovie().then().catch();*/
+		
+		firebaseApi.saveMovie(newMovie).then((results) => {
+			$(mommy).remove();
+			/*console.log("saveMovie results", results); */// id for saved movies stored in firebase
+		}).catch((err) => {
+			console.log("error in saveMovie", err);
+		});
 
 	});
 };
@@ -195,7 +200,27 @@ let authenticateGoogle = () => {
   	});
   };
 
-module.exports = {setKey, authenticateGoogle, getMovieList};
+
+const saveMovie = (movie) => {
+  movie.uid = userUid;
+  return new Promise((resolve, reject) => {
+    $.ajax({
+        method: "POST", 
+        url: `${firebaseKey.databaseURL}/movies.json`,
+        data: JSON.stringify(movie)
+     }).then((result) => {
+        resolve(result);
+     }).catch((error) => {
+        reject(error);
+    });
+  });
+};
+
+
+
+
+
+module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie};
 },{}],5:[function(require,module,exports){
 "use strict";
 
