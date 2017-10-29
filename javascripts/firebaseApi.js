@@ -70,7 +70,21 @@ const deleteMovie = (movieId) => {
   });
 };
 
+const editMovie = (modifiedMovie, movieId) => {
+    modifiedMovie.uid = userUid;
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            method: "PUT",
+            url: `${firebaseKey.databaseURL}/movies/${movieId}.json`,
+            data: JSON.stringify(modifiedMovie)
+        }).then((edit) => {
+            resolve(edit);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};
 
 
 
-module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie, deleteMovie};
+module.exports = {setKey, authenticateGoogle, getMovieList, saveMovie, deleteMovie, editMovie};
