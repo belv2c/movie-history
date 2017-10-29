@@ -1,5 +1,7 @@
 "use strict";
 
+let firebaseApi = require('./firebaseApi');
+
 const domString = (movieArray, imgConfig, divName, search) => {
 	let domString = "";
 	for (let i = 0; i < movieArray.length; i++) {
@@ -23,7 +25,8 @@ const domString = (movieArray, imgConfig, divName, search) => {
 	domString +=			`<a class="btn btn-default wishlist" role="button">Wishlist</a>`;
 	domString +=		`</p>`;
 	} else {
-	domString += `<p>Rating: ${movieArray[i].rating}</p>`;
+	domString += `<label for="stars_${movieArray[i].id}" class="control-label">Rate This</label>`;
+	domString += `<input id="stars_${movieArray[i].id}" name="stars_${movieArray[i].id}" class="stars rating-loading">`;
 	}
 	domString += 	 `</div>`; 
 	domString +=   `</div>`;
@@ -32,15 +35,49 @@ const domString = (movieArray, imgConfig, divName, search) => {
 		domString += `</div>`;
 	}
   }
-  printToDom(domString, divName);
+   if (!search) {
+        printToDom(domString, divName, movieArray);
+    } else {
+        printToDom(domString, divName);
+    }
+
 };
 
-const printToDom = (strang, divName) => {
-	$(`#${divName}`).append(strang);
+const initializeStars = (starArray) => {
+    starArray.forEach((star) => {
+        $("#stars_" + star.id).rating().on("rating.change", function(e, value, caption) {
+            let mommy = e.target.closest('.movie');
+            let movieId = $(e.target.closest('.thumbnail')).find('.delete').data('firebase-id');
+            let modifiedMovie = {
+                "title": $(mommy).find('.title').html(),
+                "overview": $(mommy).find('.overview').html(),
+                "poster_path": $(mommy).find('.poster_path').attr('src').split('/').pop(),
+                "rating": value,
+                "isWatched": false,
+                "uid": ""
+            };
+            firebaseApi.editMovie(modifiedMovie, movieId).then((results) => {
+                console.log(results);
+            }).catch((err) => {
+                console.log("editMovie error", err);
+            });
+        });
+    });
+};
+
+const printToDom = (strang, divName, starArray) => {
+    $(`#${divName}`).append(strang);
+
+    if (starArray) {
+        initializeStars(starArray);
+    }
 };
 
 const clearDom = (divName) => {
-	$(`#${divName}`).empty();
+    $(`#${divName}`).empty();
 };
 
-module.exports = {domString, clearDom};
+module.exports = {
+    domString,
+    clearDom
+};
